@@ -1,0 +1,47 @@
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Environments
+.venv/
+venv/
+.env
+.env.*
+.python-version
+
+# Tooling artifacts
+.DS_Store
+Thumbs.db
+.idea/
+.coverage
+coverage.xml
+htmlcov/
+
+# Build and packaging
+build/
+dist/
+*.egg-info/
+
+# Data and analysis scratch
+data/raw/
+*.log
+*.tmp
+*.sqlite3
+*.db
+
+# Backup files
+*.backup
+
+# UV
+.uv/
+
+# Generated outputs (remove these ignores if you want to track figures)
+outputs/
+results/
+
+# Notebooks
+.ipynb_checkpoints/
