@@ -222,7 +222,10 @@ def _roi(df: pd.DataFrame) -> pd.Series:
     Returns:
         A Series with ROI values. Zero or negative budgets result in NaN.
     """
-    return pd.Series([0])  # TODO: implement
+    
+    result = (df['revenue'] - df['budget']) / df['budget'].replace(0, np.nan)
+    
+    return result  # TODO: implement
 
 
 def _is_profitable(df: pd.DataFrame) -> pd.Series:
