@@ -41,7 +41,6 @@ data/raw/
 
 # Generated outputs (remove these ignores if you want to track figures)
 outputs/
-results/
 
 # Notebooks
 .ipynb_checkpoints/
