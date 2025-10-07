@@ -86,17 +86,49 @@ def _parse_json_list(value: object) -> list[dict]:
 
 
 def _names_from_json(value: object, *, key: str = "name") -> list[str]:
-    """Return all truthy string values for ``key`` from a JSON-like payload.
-
+    """
+    Recursively finds all truthy string values for a specified key 
+    within a JSON-like structure (dicts, lists, or raw JSON string).
+    
     Args:
         value: Raw JSON string, list of dicts, or other value to inspect.
-        key: Dictionary key whose values should be collected.
-
+        key: Dictionary key whose values should be collected (keyword-only).
+        
     Returns:
-        A list of strings extracted from the JSON structure. Missing or falsey
-        values are ignored.
+        A list of truthy strings extracted from the JSON structure.
     """
-    return []  # TODO: implement
+    results = []
+
+    # 1. Handle Raw JSON String Input
+    if isinstance(value, str):
+        try:
+            value = json.loads(value)
+        except json.JSONDecodeError:
+            return []
+
+    # 2. Handle Dictionary Traversal
+    if isinstance(value, dict):
+        for k, v in value.items():
+            # Check if the current key matches the target key
+            if k == key:
+                # Check for truthiness and string type
+                if isinstance(v, str) and v:
+                    results.append(v)
+            
+            # Recurse into the value (v)
+            # Note: We must pass 'key' as a keyword argument in the recursive call
+            results.extend(_names_from_json(v, key=key))
+
+    # 3. Handle List Traversal
+    elif isinstance(value, list):
+        # Recurse into each element of the list
+        for item in value:
+            # Note: We must pass 'key' as a keyword argument in the recursive call
+            results.extend(_names_from_json(item, key=key))
+            
+    return results
+    
+    
 
 
 def _codes_from_json(key: str):
