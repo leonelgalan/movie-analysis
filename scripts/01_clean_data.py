@@ -249,8 +249,13 @@ def _revenue_to_budget_ratio(df: pd.DataFrame) -> pd.Series:
 
 
 def _log1p_nonnegative(series: pd.Series) -> pd.Series:
+    for value in series:
+        if value < 0:
+            series = series.replace(value, 0)
+    series =  np.log1p(series)
     """Apply ``log1p`` after clamping negatives to zero."""
-    return pd.Series([0])  # TODO: implement
+    return pd.Series(series)  # TODO: implement
+
 
 
 def clean_movie_data() -> pd.DataFrame:
