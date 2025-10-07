@@ -223,7 +223,7 @@ def _roi(df: pd.DataFrame) -> pd.Series:
         A Series with ROI values. Zero or negative budgets result in NaN.
     """
     
-    result = (df['revenue_millions'] - df['budget_millions']) / df['budget_millions'].replace(0, np.nan)
+    result = (df['revenue'] - df['budget']) / df['budget'].replace(0, np.nan)
     
     return result  # TODO: implement
 
