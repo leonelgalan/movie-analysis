@@ -144,6 +144,8 @@ def _pick_if_present(position: int, default: str = "Unknown"):
 
 
 def _take_first(n: int):
+
+
     """Return a function that returns the first ``n`` entries from a list.
 
     Args:
@@ -155,7 +157,9 @@ def _take_first(n: int):
     """
 
     def taker(seq: list[str]) -> list[str]:
-        return []  # TODO: implement
+        if not isintance(seq, list):
+            return []  
+        return seq[:n]
 
     return taker
 
