@@ -222,10 +222,8 @@ def _roi(df: pd.DataFrame) -> pd.Series:
     Returns:
         A Series with ROI values. Zero or negative budgets result in NaN.
     """
-    
-    result = (df['revenue'] - df['budget']) / df['budget'].replace(0, np.nan)
-    
-    return result  # TODO: implement
+    result = (df["revenue"] - df["budget"]) / df["budget"].replace(0, np.nan)
+    return result
 
 
 def _is_profitable(df: pd.DataFrame) -> pd.Series:
@@ -249,18 +247,16 @@ def _to_millions(series: pd.Series) -> pd.Series:
 def _revenue_to_budget_ratio(df: pd.DataFrame) -> pd.Series:
     """Compute revenue divided by budget with zero-budget protection."""
     safe_budget = df["budget"].replace(0, np.nan)
-    return df["revenue"]/safe_budget
-    # TODO: implement
+    return df["revenue"] / safe_budget
 
 
 def _log1p_nonnegative(series: pd.Series) -> pd.Series:
+    """Apply ``log1p`` after clamping negatives to zero."""
     for value in series:
         if value < 0:
             series = series.replace(value, 0)
-    series =  np.log1p(series)
-    """Apply ``log1p`` after clamping negatives to zero."""
-    return pd.Series(series)  # TODO: implement
-
+    series = np.log1p(series)
+    return pd.Series(series)
 
 
 def clean_movie_data() -> pd.DataFrame:
