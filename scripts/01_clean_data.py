@@ -173,15 +173,26 @@ def _decade_label(year: int | None) -> str:
 
 
 def _budget_category(amount: float) -> str:
-    """Bucket budgets into low/medium/high tiers.
+    
+    if amount.isna():
+        budget_category = "unknown"
+    elif (amount < 20e6):
+        budget_category = "low"
+    elif (amount >= 20e6) and (amount < 80e6):
+        budget_category = "med"
+    else:
+        budget_category = "high"
 
+    return budget_category  # TODO: implement
+
+    """Bucket budgets into low/medium/high tiers.
+    
     Returns:
         - "low" if budget < $20M
         - "medium" if $20M <= budget < $80M
         - "high" if budget >= $80M
         - "unknown" if budget is None or NaN
     """
-    return ""  # TODO: implement
 
 
 def _vote_count_bucket(votes: float) -> str:
