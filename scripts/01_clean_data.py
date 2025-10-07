@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import cast
 
-import numpy as np  # noqa: F401 - students will need this for implementations
+import numpy as np
 import pandas as pd
 
 DATA_IN = Path("data/movies_raw.csv")
@@ -96,7 +96,8 @@ def _names_from_json(value: object, *, key: str = "name") -> list[str]:
         A list of strings extracted from the JSON structure. Missing or falsey
         values are ignored.
     """
-    return []  # TODO: implement
+
+    return [item[key] for item in _parse_json_list(value) if key in item and item[key]]
 
 
 def _codes_from_json(key: str):
@@ -112,7 +113,7 @@ def _codes_from_json(key: str):
 
     def extractor(value: object) -> list[str]:
         """Extract values for the preconfigured key from ``value``."""
-        return []  # TODO: implement
+        return [item[key] for item in _parse_json_list(value) if key in item and item[key]]
 
     return extractor
 
@@ -123,7 +124,11 @@ def _extract_director(crew_str: object) -> str:
     Returns:
         The name of the first director found, or "Unknown" if no director exists.
     """
-    return ""  # TODO: implement
+
+    for entry in _parse_json_list(crew_str):
+        if entry.get("job") == "Director" and entry.get("name"):
+            return entry["name"]
+    return "Unknown"
 
 
 def _pick_if_present(position: int, default: str = "Unknown"):
@@ -138,7 +143,11 @@ def _pick_if_present(position: int, default: str = "Unknown"):
     """
 
     def picker(seq: list[str]) -> str:
-        return ""  # TODO: implement
+        if isinstance(seq, list) and len(seq) > position:
+            value = seq[position]
+            if isinstance(value, str) and value:
+                return value
+        return default
 
     return picker
 
@@ -155,7 +164,9 @@ def _take_first(n: int):
     """
 
     def taker(seq: list[str]) -> list[str]:
-        return []  # TODO: implement
+        if isinstance(seq, list):
+            return seq[:n]
+        return []
 
     return taker
 
@@ -169,7 +180,10 @@ def _decade_label(year: int | None) -> str:
     Returns:
         A decade string like "1990s", or "Unknown" if year is None or NaN.
     """
-    return ""  # TODO: implement
+
+    if year is None or np.isnan(year):
+        return "Unknown"
+    return f"{int(year // 10 * 10)}s"
 
 
 def _budget_category(amount: float) -> str:
@@ -181,7 +195,14 @@ def _budget_category(amount: float) -> str:
         - "high" if budget >= $80M
         - "unknown" if budget is None or NaN
     """
-    return ""  # TODO: implement
+
+    if amount is None or np.isnan(amount):
+        return "unknown"
+    if amount < 20_000_000:
+        return "low"
+    if amount < 80_000_000:
+        return "medium"
+    return "high"
 
 
 def _vote_count_bucket(votes: float) -> str:
@@ -193,7 +214,14 @@ def _vote_count_bucket(votes: float) -> str:
         - "blockbuster" if votes >= 2000
         - "unknown" if votes is None or NaN
     """
-    return ""  # TODO: implement
+
+    if votes is None or np.isnan(votes):
+        return "unknown"
+    if votes < 500:
+        return "emerging"
+    if votes < 2000:
+        return "established"
+    return "blockbuster"
 
 
 def _runtime_bucket(runtime: float) -> str:
@@ -206,12 +234,22 @@ def _runtime_bucket(runtime: float) -> str:
         - "epic" if runtime >= 150 minutes
         - "unknown" if runtime is None or NaN
     """
-    return ""  # TODO: implement
+
+    if runtime is None or np.isnan(runtime):
+        return "unknown"
+    if runtime < 90:
+        return "short"
+    if runtime < 120:
+        return "standard"
+    if runtime < 150:
+        return "extended"
+    return "epic"
 
 
 def _profit(df: pd.DataFrame) -> pd.Series:
     """Compute profit as revenue minus budget for each row."""
-    return pd.Series([0])  # TODO: implement
+
+    return df["revenue"] - df["budget"]
 
 
 def _roi(df: pd.DataFrame) -> pd.Series:
@@ -222,13 +260,15 @@ def _roi(df: pd.DataFrame) -> pd.Series:
     Returns:
         A Series with ROI values. Zero or negative budgets result in NaN.
     """
-    result = (df["revenue"] - df["budget"]) / df["budget"].replace(0, np.nan)
-    return result
+
+    budget = _greater_than_zero(df["budget"])
+    return (df["revenue"] - df["budget"]) / budget
 
 
 def _is_profitable(df: pd.DataFrame) -> pd.Series:
     """Boolean indicator for whether revenue exceeds budget."""
-    return pd.Series([False])  # TODO: implement
+
+    return df["revenue"] > df["budget"]
 
 
 def _greater_than_zero(series: pd.Series) -> pd.Series:
@@ -236,27 +276,27 @@ def _greater_than_zero(series: pd.Series) -> pd.Series:
 
     Values <= 0 become NaN; positive values are preserved.
     """
-    return pd.Series([0])  # TODO: implement
+
+    return series.where(series > 0, np.nan)
 
 
 def _to_millions(series: pd.Series) -> pd.Series:
     """Convert currency series to millions of dollars."""
-    return pd.Series([0])  # TODO: implement
+
+    return series / 1_000_000
 
 
 def _revenue_to_budget_ratio(df: pd.DataFrame) -> pd.Series:
     """Compute revenue divided by budget with zero-budget protection."""
-    safe_budget = df["budget"].replace(0, np.nan)
-    return df["revenue"] / safe_budget
+
+    budget = _greater_than_zero(df["budget"])
+    return df["revenue"] / budget
 
 
 def _log1p_nonnegative(series: pd.Series) -> pd.Series:
     """Apply ``log1p`` after clamping negatives to zero."""
-    for value in series:
-        if value < 0:
-            series = series.replace(value, 0)
-    series = np.log1p(series)
-    return pd.Series(series)
+
+    return np.log1p(series.clip(lower=0))
 
 
 def clean_movie_data() -> pd.DataFrame:
