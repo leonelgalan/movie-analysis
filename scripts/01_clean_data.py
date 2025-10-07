@@ -148,6 +148,7 @@ def _take_first(n: int):
 
     Args:
         n: Number of elements to take from the beginning.
+        
 
     Returns:
         A function that returns the first n elements of a list, or an empty
@@ -155,10 +156,19 @@ def _take_first(n: int):
     """
 
     def taker(seq: list[str]) -> list[str]:
-        return []  # TODO: implement
+        if isinstance(list, list):
+            return list[0:n]
+        else:
+            return [] # TODO: implement
+return taker
 
-    return taker
 
+#%%
+
+list1 = [1,2,2,4,5,]
+list1.type
+
+#%%
 
 def _decade_label(year: int | None) -> str:
     """Convert a release year into a decade label (e.g., ``1990s``).
@@ -359,3 +369,7 @@ def clean_movie_data() -> pd.DataFrame:
 
 if __name__ == "__main__":
     clean_movie_data()
+
+print(DATA_IN)
+
+# %%
