@@ -31,9 +31,7 @@ def _compute_genre_counts(
     if df.empty:
         return pd.DataFrame()
 
-    genre_order: Iterable[str] = (
-        df["primary_genre"].value_counts().head(top_n).index.tolist()
-    )
+    genre_order: Iterable[str] = df["primary_genre"].value_counts().head(top_n).index.tolist()
     if not genre_order:
         return pd.DataFrame()
 

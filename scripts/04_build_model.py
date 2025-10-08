@@ -103,9 +103,7 @@ def _evaluate_model(
 
     cv = KFold(n_splits=n_splits, shuffle=True, random_state=random_state)
     cv_r2_scores = cross_val_score(pipeline, X, y, cv=cv, scoring="r2")
-    cv_mae_scores = -cross_val_score(
-        pipeline, X, y, cv=cv, scoring="neg_mean_absolute_error"
-    )
+    cv_mae_scores = -cross_val_score(pipeline, X, y, cv=cv, scoring="neg_mean_absolute_error")
 
     metrics = {
         "cv_r2_mean": 0.0,  # TODO: replace with mean CV R^2.
@@ -147,16 +145,9 @@ def main() -> None:
     pipeline = _build_pipeline()
     metrics = _evaluate_model(pipeline, X, y)
 
-    print(
-        f"5-fold CV R^2: {metrics['cv_r2_mean']:.3f} ± {metrics['cv_r2_std']:.3f}"
-    )
-    print(
-        f"5-fold CV MAE: {metrics['cv_mae_mean']:.3f} ± {metrics['cv_mae_std']:.3f}"
-    )
-    print(
-        f"Holdout R^2: {metrics['holdout_r2']:.3f} "
-        f"(test size: {metrics['holdout_size']})"
-    )
+    print(f"5-fold CV R^2: {metrics['cv_r2_mean']:.3f} ± {metrics['cv_r2_std']:.3f}")
+    print(f"5-fold CV MAE: {metrics['cv_mae_mean']:.3f} ± {metrics['cv_mae_std']:.3f}")
+    print(f"Holdout R^2: {metrics['holdout_r2']:.3f} (test size: {metrics['holdout_size']})")
     print(f"Holdout MAE: {metrics['holdout_mae']:.3f}")
 
     importance = aggregated_feature_importance(pipeline).head(10)

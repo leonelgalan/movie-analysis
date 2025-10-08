@@ -61,4 +61,3 @@ def test_compute_genre_shares_normalizes_rows() -> None:
     assert pytest.approx(1.0) == shares.loc["1990s"].sum()
     assert pytest.approx(1.0) == shares.loc["2000s"].sum()
     assert (shares >= 0).all().all()
-
