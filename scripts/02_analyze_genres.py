@@ -43,6 +43,7 @@ def _compute_genre_counts(
         .reindex(columns=list(genre_order), fill_value=0)
         .sort_index()
     )
+    counts.index.name = "decade"
     counts.columns.name = None
     return counts
 
@@ -54,7 +55,8 @@ def _compute_genre_shares(counts: pd.DataFrame) -> pd.DataFrame:
         return counts.copy()
 
     totals = counts.sum(axis=1)
-    shares = counts.divide(totals, axis=0)
+    safe_totals = totals.replace(0, pd.NA)
+    shares = counts.divide(safe_totals, axis=0)
     return shares.fillna(0)
 
 
