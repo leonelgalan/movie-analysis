@@ -21,12 +21,7 @@ def _compute_genre_counts(
     *,
     top_n: int = TOP_N_GENRES,
 ) -> pd.DataFrame:
-    """Return a decade × genre table of release counts for the top genres.
-
-    TODO: Group by ``decade`` and ``primary_genre``, keep the ``top_n`` most
-    common genres overall, and pivot so each column represents a genre with
-    missing combinations filled as zero.
-    """
+    """Return a decade × genre table of release counts for the top genres."""
 
     if df.empty:
         return pd.DataFrame()
@@ -39,25 +34,32 @@ def _compute_genre_counts(
     if filtered.empty:
         return pd.DataFrame()
 
-    # TODO: implement aggregation (groupby → size → unstack) and reindex with genre_order.
-    counts = pd.DataFrame()
+    counts = (
+        filtered.groupby(["decade", "primary_genre"])
+        .size()
+        .unstack(fill_value=0)
+        .reindex(columns=genre_order, fill_value=0)
+        .sort_index()
+        .rename_axis(columns=None)
+    )
     return counts
+
 
 
 def _compute_genre_shares(counts: pd.DataFrame) -> pd.DataFrame:
     """Normalize genre counts within each decade to shares.
 
-    TODO: Divide each row by its total so the per-decade shares sum to 1 (or
+    Divide each row by its total so the per-decade shares sum to 1 (or
     0 when a row has no releases after filtering).
     """
 
     if counts.empty:
         return counts.copy()
 
-    # TODO: divide each row by its total (handle zero totals) and return the shares DataFrame.
-    shares = counts.copy()
-    # TODO: compute row totals, handle zeros, and divide each row before filling NaNs.
-    return shares.fillna(0)
+    # Compute row sums and avoid division by zero
+    row_totals = counts.sum(axis=1).replace(0, pd.NA)
+    shares = counts.div(row_totals, axis=0).fillna(0)
+    return shares
 
 
 def main() -> None:
