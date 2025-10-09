@@ -39,8 +39,5 @@ data/raw/
 # UV
 .uv/
 
-# Generated outputs (remove these ignores if you want to track figures)
-outputs/
-
 # Notebooks
 .ipynb_checkpoints/
