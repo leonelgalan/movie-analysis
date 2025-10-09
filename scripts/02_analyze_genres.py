@@ -21,17 +21,14 @@ def _compute_genre_counts(
     *,
     top_n: int = TOP_N_GENRES,
 ) -> pd.DataFrame:
-    """Return a decade × genre table of release counts for the top genres.
-
-    TODO: Group by ``decade`` and ``primary_genre``, keep the ``top_n`` most
-    common genres overall, and pivot so each column represents a genre with
-    missing combinations filled as zero.
-    """
+    """Return a decade × genre table of release counts for the top genres."""
 
     if df.empty:
         return pd.DataFrame()
 
-    genre_order: Iterable[str] = df["primary_genre"].value_counts().head(top_n).index.tolist()
+    genre_order: Iterable[str] = (
+        df["primary_genre"].value_counts().head(top_n).index.tolist()
+    )
     if not genre_order:
         return pd.DataFrame()
 
@@ -39,24 +36,25 @@ def _compute_genre_counts(
     if filtered.empty:
         return pd.DataFrame()
 
-    # TODO: implement aggregation (groupby → size → unstack) and reindex with genre_order.
-    counts = pd.DataFrame()
+    counts = (
+        filtered.groupby(["decade", "primary_genre"])
+        .size()
+        .unstack(fill_value=0)
+        .reindex(columns=list(genre_order), fill_value=0)
+        .sort_index()
+    )
+    counts.columns.name = None
     return counts
 
 
 def _compute_genre_shares(counts: pd.DataFrame) -> pd.DataFrame:
-    """Normalize genre counts within each decade to shares.
-
-    TODO: Divide each row by its total so the per-decade shares sum to 1 (or
-    0 when a row has no releases after filtering).
-    """
+    """Normalize genre counts within each decade to shares."""
 
     if counts.empty:
         return counts.copy()
 
-    # TODO: divide each row by its total (handle zero totals) and return the shares DataFrame.
-    shares = counts.copy()
-    # TODO: compute row totals, handle zeros, and divide each row before filling NaNs.
+    totals = counts.sum(axis=1)
+    shares = counts.divide(totals, axis=0)
     return shares.fillna(0)
 
 
@@ -84,16 +82,15 @@ def main() -> None:
     counts = _compute_genre_counts(df, top_n=TOP_N_GENRES)
     if counts.empty:
         raise SystemExit(
-            "No rows remain after filtering to top genres. If you haven't "
-            "implemented `_compute_genre_counts` yet, start there; otherwise "
-            "check the cleaned dataset output from step 01."
+            "No rows remain after filtering to top genres. "
+            "Check the cleaned dataset output from step 01."
         )
 
     shares = _compute_genre_shares(counts)
     if shares.empty or not shares.select_dtypes(include="number").any().any():
         raise SystemExit(
-            "No numeric genre share data to plot. Implement `_compute_genre_shares` "
-            "and ensure `decade`/`primary_genre` exist from scripts/01_clean_data.py."
+            "No numeric genre share data to plot. Ensure `decade` and "
+            "`primary_genre` were derived in scripts/01_clean_data.py."
         )
 
     plt.figure(figsize=(11, 6))
