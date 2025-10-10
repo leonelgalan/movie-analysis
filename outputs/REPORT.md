@@ -26,4 +26,9 @@
 
 ## Modeling
 
-_TBD: Summarize top features influencing ratings._
+- **Strong and reliable model performance**: The model explains about **55–58% of rating variance** (R²) with low error (MAE ≈ 0.38), showing consistent predictive accuracy.
+
+- **Engagement and scale drive ratings**: **Vote count**, **runtime**, and **budget size** are the strongest predictors — higher audience engagement and production scale tend to align with higher-rated films.
+
+- **Context still matters**: **Genre** and **release decade** add smaller but meaningful contributions, reflecting evolving audience preferences and stylistic shifts over time.
+ Overall: Ratings are best predicted by engagement (votes), scope (runtime & budget), and to a lesser extent, genre and release era.

@@ -5,13 +5,13 @@ from __future__ import annotations
 from pathlib import Path
 
 import pandas as pd
-from sklearn.compose import ColumnTransformer  # noqa: F401
-from sklearn.ensemble import RandomForestRegressor  # noqa: F401
-from sklearn.impute import SimpleImputer  # noqa: F401
-from sklearn.metrics import mean_absolute_error, r2_score  # noqa: F401
+from sklearn.compose import ColumnTransformer
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.impute import SimpleImputer
+from sklearn.metrics import mean_absolute_error, r2_score
 from sklearn.model_selection import KFold, cross_val_score, train_test_split
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import OneHotEncoder, StandardScaler  # noqa: F401
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 DATA_IN = Path("results/movies_clean.csv")
 
@@ -44,22 +44,39 @@ CAT_FEATURES: list[str] = [
 
 
 def _build_pipeline() -> Pipeline:
-    """Construct the preprocessing + model pipeline used for vote prediction.
+    """Construct the preprocessing + model pipeline used for vote prediction."""
 
-    TODO: build
-        1. A numeric pipeline with median imputation and standard scaling.
-        2. A categorical pipeline with most-frequent imputation and one-hot
-           encoding (`handle_unknown="ignore"`).
-        3. A `ColumnTransformer` that applies those pipelines to `NUM_FEATURES`
-           and `CAT_FEATURES` respectively.
-        4. A `RandomForestRegressor` configured like the backup (400 trees,
-           `min_samples_leaf=5`, `random_state=42`, `n_jobs=-1`).
-        5. A `Pipeline` that chains the preprocessor and model (steps named
-           `"pre"` and `"model"`).
-    """
+    numeric = Pipeline(
+        steps=[
+            ("imputer", SimpleImputer(strategy="median")),
+            ("scaler", StandardScaler()),
+        ]
+    )
+    categorical = Pipeline(
+        steps=[
+            ("imputer", SimpleImputer(strategy="most_frequent")),
+            (
+                "encoder",
+                OneHotEncoder(handle_unknown="ignore"),
+            ),
+        ]
+    )
 
-    # TODO: implement the pipelines, transformer, and model.
-    return Pipeline(steps=[])
+    preprocessor = ColumnTransformer(
+        transformers=[
+            ("num", numeric, NUM_FEATURES),
+            ("cat", categorical, CAT_FEATURES),
+        ]
+    )
+
+    model = RandomForestRegressor(
+        n_estimators=400,
+        min_samples_leaf=5,
+        random_state=42,
+        n_jobs=-1,
+    )
+
+    return Pipeline(steps=[("pre", preprocessor), ("model", model)])
 
 
 def aggregated_feature_importance(pipeline: Pipeline) -> pd.Series:
@@ -103,13 +120,15 @@ def _evaluate_model(
 
     cv = KFold(n_splits=n_splits, shuffle=True, random_state=random_state)
     cv_r2_scores = cross_val_score(pipeline, X, y, cv=cv, scoring="r2")
-    cv_mae_scores = -cross_val_score(pipeline, X, y, cv=cv, scoring="neg_mean_absolute_error")
+    cv_mae_scores = -cross_val_score(
+        pipeline, X, y, cv=cv, scoring="neg_mean_absolute_error"
+    )
 
     metrics = {
-        "cv_r2_mean": 0.0,  # TODO: replace with mean CV R^2.
-        "cv_r2_std": 0.0,  # TODO: replace with std dev of CV R^2.
-        "cv_mae_mean": 0.0,  # TODO: replace with mean CV MAE (positive).
-        "cv_mae_std": 0.0,  # TODO: replace with std dev of CV MAE.
+        "cv_r2_mean": float(cv_r2_scores.mean()),
+        "cv_r2_std": float(cv_r2_scores.std()),
+        "cv_mae_mean": float(cv_mae_scores.mean()),
+        "cv_mae_std": float(cv_mae_scores.std()),
     }
 
     X_train, X_test, y_train, y_test = train_test_split(
@@ -118,11 +137,9 @@ def _evaluate_model(
     pipeline.fit(X_train, y_train)
 
     y_pred = pipeline.predict(X_test)
-    metrics["holdout_r2"] = 0.0  # TODO: replace with holdout R^2.
-    metrics["holdout_mae"] = 0.0  # TODO: replace with holdout MAE.
+    metrics["holdout_r2"] = float(r2_score(y_test, y_pred))
+    metrics["holdout_mae"] = float(mean_absolute_error(y_test, y_pred))
     metrics["holdout_size"] = int(len(y_test))
-
-    _ = (cv_r2_scores, cv_mae_scores, y_pred)  # TODO: remove once metrics are populated.
 
     return metrics
 
@@ -145,9 +162,16 @@ def main() -> None:
     pipeline = _build_pipeline()
     metrics = _evaluate_model(pipeline, X, y)
 
-    print(f"5-fold CV R^2: {metrics['cv_r2_mean']:.3f} ± {metrics['cv_r2_std']:.3f}")
-    print(f"5-fold CV MAE: {metrics['cv_mae_mean']:.3f} ± {metrics['cv_mae_std']:.3f}")
-    print(f"Holdout R^2: {metrics['holdout_r2']:.3f} (test size: {metrics['holdout_size']})")
+    print(
+        f"5-fold CV R^2: {metrics['cv_r2_mean']:.3f} ± {metrics['cv_r2_std']:.3f}"
+    )
+    print(
+        f"5-fold CV MAE: {metrics['cv_mae_mean']:.3f} ± {metrics['cv_mae_std']:.3f}"
+    )
+    print(
+        f"Holdout R^2: {metrics['holdout_r2']:.3f} "
+        f"(test size: {metrics['holdout_size']})"
+    )
     print(f"Holdout MAE: {metrics['holdout_mae']:.3f}")
 
     importance = aggregated_feature_importance(pipeline).head(10)
