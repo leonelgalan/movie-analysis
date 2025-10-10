@@ -23,16 +23,20 @@
 
 ## Deliverables
 
+Each team's fork should contain:
+
 1. Cleaned dataset: `results/movies_clean.csv`
 2. Plots in `outputs/`:
    - `genres_by_decade.png`
    - `roi_by_budget_category.png`
 3. Modeling results: printed metrics (R²/MAE) from `scripts/04_build_model.py`.
 4. Collaborative documentation in `outputs/REPORT.md` summarizing findings.
-5. GitHub activity:
-   - Each **script (02–04)** developed in its own **feature branch**.
-   - Each team member contributes meaningfully (commit, PR, or code review).
-   - Merged Pull Requests (PRs) for each script.
+5. GitHub activity visible in the fork:
+   - **Day 1:** One PR to upstream for assigned function implementation
+   - **Between sessions:** Each script (02–04) developed in its own feature
+     branch with PRs **within the fork** for team code review
+   - Each team member contributes meaningfully (commits, PR, or code review)
+   - All PRs merged within the fork after review
 
 ## Acceptance Criteria
 
@@ -48,16 +52,16 @@
   uv run python scripts/04_build_model.py
   ```
 
-- All team members have visible contributions in GitHub history (commits,
-  comments, or reviews).
-- Final run produces both plots and printed model evaluation metrics.
+- All team members have visible contributions in the fork's GitHub history
+  (commits, PR comments, or code reviews).
+- Final pipeline run produces both plots and printed model evaluation metrics.
 
 ## Recommended Workflow
 
-### Branching & Collaboration
+### Branching & Collaboration (Within Your Fork)
 
-1. Clone the repository.
-2. Create a new branch for each script or enhancement:
+1. Clone your team's fork.
+2. Create a new branch for each script:
 
    ```bash
    git checkout -b feature/genres
@@ -66,46 +70,116 @@
    ```
 
 3. Make small, clear commits as you work.
-4. Open a Pull Request (PR) to `main` when your script runs cleanly.
+4. Push your branch and open a Pull Request **within your fork** (base: main,
+   compare: your-branch) when your script runs cleanly.
 5. Request a teammate to review your PR before merging.
-6. Merge only after all checks pass and discussion (if any) is resolved.
+6. Merge the PR within your fork after approval and any discussion is resolved.
 
 ## Project Timeline
 
 ### **Tuesday — Session 1: Foundations & Data Cleaning**
 
-- Git + VS Code + GitHub setup.
-- Create and push initial project structure.
-- Clean dataset together (`uv run python scripts/01_clean_data.py`).
-- Commit and push the cleaned dataset.
+#### Setup & Team Formation
+
+- Git + VS Code + GitHub setup and identity configuration.
+- Form **groups of 4 students** each.
+- Each group picks a **team color name** from
+  [CSS colors](https://matplotlib.org/stable/gallery/color/named_colors.html#css-colors).
+- Groups assess their programming experience (beginner/intermediate/advanced).
+- Instructor assigns each group **one function** from `scripts/01_clean_data.py`
+  based on difficulty (16 functions total).
+
+**Function Difficulty Guide:**
+
+- ⚡ Very Easy (5-10 min) - 3 functions: `_profit`, `_is_profitable`,
+  `_to_millions`
+- ✅ Easy (15-20 min) - 4 functions: `_budget_category`, `_vote_count_bucket`,
+  `_runtime_bucket`, `_log1p_nonnegative`
+- 🟡 Medium (25-35 min) - 6 functions: `_decade_label`, `_greater_than_zero`,
+  `_extract_director`, `_take_first`, `_names_from_json`,
+  `_revenue_to_budget_ratio`
+- 🟠 Medium-Hard (35-50 min) - 3 functions: `_pick_if_present`, `_roi`,
+  `_codes_from_json`
+
+#### Collaborative Workflow
+
+1. Each group **forks** `https://github.com/leonelgalan/movie-analysis` to one
+   team member's account.
+2. All team members clone the fork locally:
+   ```bash
+   git clone https://github.com/YOUR-USERNAME/movie-analysis.git
+   cd movie-analysis
+   ```
+3. Create a feature branch:
+   ```bash
+   git checkout -b implement-your-function-name
+   ```
+4. Implement the assigned function in `scripts/01_clean_data.py`.
+5. Test it works by running the script.
+6. Commit and push to the fork:
+   ```bash
+   git add scripts/01_clean_data.py
+   git commit -m "Implement _your_function_name"
+   git push origin implement-your-function-name
+   ```
+7. Submit a **Pull Request** from the fork back to the main repository.
+8. **Each group submits their PR before the end of Session 1.**
+
+By the end of Tuesday, all 16 functions will be reviewed and merged into `main`.
 
 ### **Between Sessions (Wednesday–Thursday)**
 
-- Pull the merged data-cleaning changes.
-- Continue development on analysis and modeling scripts (`02`, `03`, `04`),
-  running each with `uv run python scripts/<step>.py`.
-- Collaborate as a team — divide work however you prefer.
-- Each team member should contribute at least once (code, PR review, or
-  documentation).
-- Commit early, push regularly, and open PRs for review before Friday.
+1. **Pull the latest changes** from the main repository after all PRs are
+   merged:
+   ```bash
+   git remote add upstream https://github.com/leonelgalan/movie-analysis.git
+   git pull upstream main
+   ```
+2. **Collaborate to complete all analysis scripts** (`02`, `03`, `04`):
+   - Work together as a team or divide scripts among team members
+   - Create feature branches for each script
+   - **Open Pull Requests within your fork** (not to upstream) for team code
+     review
+   - Merge PRs within your fork after review
+3. **Commit early and often** as you make progress.
+4. **Push your work** to your fork before Friday.
 
-**Bonus Challenge:** Experiment with pulling code or ideas from another team's
-repository — add a new Git remote, merge or cherry-pick their work, and verify
-your pipeline still runs cleanly.
+**Learning Opportunity:** Practice pulling completed scripts from another team's
+fork — add their fork as a Git remote, merge or cherry-pick their work, and
+verify your pipeline still runs cleanly. This mirrors real-world open-source
+collaboration!
 
 ### **Friday — Session 2: Integration & Mastery**
 
-- Sync everyone’s repos (`git pull origin main`).
-- Review and merge open PRs.
-- Practice conflict resolution using `outputs/REPORT.md`.
-- Run the full pipeline end-to-end with `uv run python scripts/<step>.py`.
-- Review plots and model results.
+- Sync everyone's repos with latest upstream changes:
+  ```bash
+  git pull upstream main
+  ```
+- **Review and merge any open PRs within your fork** for scripts `02`, `03`,
+  and `04`.
+- Practice conflict resolution using `outputs/REPORT.md` (see exercise below).
+  - Each team member will edit the same section simultaneously
+  - Create competing PRs within the fork
+  - Resolve the merge conflict together
+- Run the full pipeline end-to-end:
+  ```bash
+  uv run python scripts/01_clean_data.py
+  uv run python scripts/02_analyze_genres.py
+  uv run python scripts/03_analyze_financials.py
+  uv run python scripts/04_build_model.py
+  ```
+- Review plots and model results as a team.
 - Celebrate a working collaborative analysis!
 
 ## Conflict Exercise (Friday)
 
-- Two teammates will intentionally edit the same section of `outputs/REPORT.md`.
-- This will create a **merge conflict**, resolved in VS Code.
+Within each team's fork, practice resolving merge conflicts:
+
+- Two teammates will intentionally edit the same section of `outputs/REPORT.md`
+  on separate branches.
+- Each creates a Pull Request within the fork.
+- This will create a **merge conflict** when merging the second PR, resolved in
+  VS Code.
 
 Example starting file:
 

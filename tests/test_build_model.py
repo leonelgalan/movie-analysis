@@ -36,10 +36,7 @@ def test_evaluate_model_returns_metrics() -> None:
     signal = rng.normal(size=len(numeric))
     numeric[_model.NUM_FEATURES[0]] = signal
     categorical = pd.DataFrame(
-        {
-            name: rng.choice(["A", "B", "C"], size=len(numeric))
-            for name in _model.CAT_FEATURES
-        }
+        {name: rng.choice(["A", "B", "C"], size=len(numeric)) for name in _model.CAT_FEATURES}
     )
     X = pd.concat([numeric, categorical], axis=1)
     y = pd.Series(0.5 * signal + rng.normal(scale=0.1, size=len(signal)))
