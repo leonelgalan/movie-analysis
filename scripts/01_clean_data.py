@@ -142,6 +142,7 @@ def _pick_if_present(position: int, default: str = "Unknown"):
 
     return picker
 
+import pandas 
 
 def _take_first(n: int):
     """Return a function that returns the first ``n`` entries from a list.
@@ -155,9 +156,11 @@ def _take_first(n: int):
     """
 
     def taker(seq: list[str]) -> list[str]:
-        return []  # TODO: implement
-
+        if not isinstance(seq, list):
+            return[]
+        return seq[:n]
     return taker
+    
 
 
 def _decade_label(year: int | None) -> str:
