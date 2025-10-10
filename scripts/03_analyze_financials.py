@@ -29,9 +29,10 @@ def _aggregate_budget_metrics(
 ) -> pd.DataFrame:
     """Summarise ROI/profit statistics by budget category.
 
-    TODO: group by ``budget_category`` and compute the same metrics as the
-    backup implementation (mean/median ROI, share profitable, average budgets
-    and profits, counts). Reindex the result to match ``order`` if provided.
+    Args:
+        df: Cleaned movie dataset.
+        order: Optional list of budget categories to order the output by.
+            If not provided, categories will be sorted alphabetically.
     """
 
     if df.empty:
@@ -41,8 +42,18 @@ def _aggregate_budget_metrics(
     if not categories:
         return pd.DataFrame()
 
-    # TODO: implement aggregation and return the reindexed DataFrame.
-    return pd.DataFrame()
+    return (
+        df.groupby("budget_category")
+        .agg(
+            mean_roi=("roi_capped", "mean"),
+            median_roi=("roi", "median"),
+            share_profitable=("is_profitable", "mean"),
+            avg_budget_millions=("budget_millions", "mean"),
+            avg_profit_millions=("profit", lambda s: (s.mean() / 1_000_000)),
+            count=("id", "count"),
+        )
+        .reindex(CATEGORY_ORDER)
+    )
 
 
 def main() -> None:
