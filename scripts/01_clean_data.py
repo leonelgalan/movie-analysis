@@ -143,32 +143,25 @@ def _pick_if_present(position: int, default: str = "Unknown"):
     return picker
 
 
-def _take_first(n: int):
+def _take_first(n: int) -> Callable[[List[Any]], List[Any]]:
     """Return a function that returns the first ``n`` entries from a list.
 
     Args:
         n: Number of elements to take from the beginning.
         
-
     Returns:
         A function that returns the first n elements of a list, or an empty
         list if the input is not a list.
     """
-
-    def taker(seq: list[str]) -> list[str]:
-        if isinstance(list, list):
-            return list[0:n]
+    def taker(seq: List[Any]) -> List[Any]:
+        if isinstance(seq, list):
+            # Slicing a list like this is safe even if n > len(seq)
+            return seq[:n] 
         else:
-            return [] # TODO: implement
-return taker
+            return []
+            
+    return taker
 
-
-#%%
-
-list1 = [1,2,2,4,5,]
-list1.type
-
-#%%
 
 def _decade_label(year: int | None) -> str:
     """Convert a release year into a decade label (e.g., ``1990s``).
@@ -370,6 +363,4 @@ def clean_movie_data() -> pd.DataFrame:
 if __name__ == "__main__":
     clean_movie_data()
 
-print(DATA_IN)
 
-# %%
